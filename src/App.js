@@ -1,11 +1,36 @@
 import logo from './logo.svg';
-import './App.css';
+// import './App.css';
+
+import "./styles/generic.css"
+import ImageColumn from './views/ImageColumns.jsx';
+
+import ImagePreview from "./views/ImagePreview.jsx"
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        
+              </header>
+
+        <div className='columns'>
+        < ImageColumn />
+        < ImageColumn />
+        < ImageColumn />
+        < ImageColumn />
+        < ImageColumn />
+
+
+        </div>
+
+    </div>
+  );
+}
+
+export default App;
+
+/*
+<img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
@@ -17,9 +42,4 @@ function App() {
         >
           Learn React
         </a>
-      </header>
-    </div>
-  );
-}
-
-export default App;
+*/

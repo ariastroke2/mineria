@@ -1,0 +1,90 @@
+.previewcard{
+    position: relative;
+    margin: var(--generic-margin);
+
+    user-select: contain;
+
+    cursor: pointer;
+}
+
+.previewcard:hover .previewcard-actions {
+    opacity: 1; 
+    
+    pointer-events: auto; 
+}
+
+.previewcard-actions{
+    content: ''; 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    border-radius: var(--image-radius);
+
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1; /* Asegura que esté encima de la imagen */
+
+    opacity: 0.1; /* Empieza invisible */
+    transition: opacity 0.1s ease;
+
+    pointer-events: none; 
+    
+    display: flex;
+    flex-direction: row;
+}
+
+.previewcard-actions > * {
+    visibility: hidden;
+}
+
+.previewcard:hover .previewcard-actions > * {
+    visibility: visible;
+}
+
+.previewcard-imgcontainer{
+    position: relative;
+
+    height: fit-content;
+    width: fit-content;
+}
+
+.previewcard-img{
+    width:100%;
+    z-index: 0;
+
+    display: block;
+}
+
+.previewcard-overlay:hover {
+    opacity: 1; /* Se hace visible al hacer hover */
+}
+
+.previewcard-name{
+  width: 80%;
+
+  text-align: left;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+    margin: 0;
+
+    font-size:medium;
+}
+
+.previewcard-name2{
+    position: absolute;
+  top: 1%;
+  left: 1%;
+
+  width: 80%;
+  height: 100%;
+
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

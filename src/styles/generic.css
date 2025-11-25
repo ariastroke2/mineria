@@ -1,0 +1,133 @@
+/*@font-face {
+
+}*/
+  :root {
+    --primary-color: #ff0000;
+  
+    --primary-color-button: #ff0000;
+  
+    --page-background-color: #f7f6f9;
+
+    --image-radius: 1.5vw;
+
+    --generic-margin: 10px;
+  
+    /*--primary-font: Ambit;*/
+  }
+
+  /*div{
+    font-family: Ambit;
+  }*/
+
+input{
+    padding:5px;
+    border-radius: 5px;
+}
+
+textarea{
+    padding:5px;
+    border-radius: 5px;
+}
+
+select{
+    padding:5px;
+    border-radius: 5px;
+}
+
+  button {
+    padding: 0.5em 1em;
+
+    height: 40px;
+
+    color: white;
+
+    background-color: var(--primary-color-button);
+    border-radius: var(--image-radius);
+
+    width: fit-content;
+    
+    font-weight: bold;
+    white-space: nowrap;
+
+    cursor: pointer;
+  }
+  
+  button:hover{
+      background-color: color-mix(--primary-color-button, 75%, #000000);
+  }
+
+  img{
+    border-radius: var(--image-radius);
+  }
+
+.nomargin{
+    padding: 1px;
+    margin: 1px;
+}
+
+.spacer {
+    height:1vw;
+    width: 1vw;
+}
+
+.toprightcorner{
+    position: absolute;
+
+    top: 0;
+    right: 0;
+}
+
+.topleftcorner{
+    position: absolute;
+
+    top: 0;
+    left: 0;
+}
+
+.columns{
+    display:flex;
+    flex-direction: row;
+
+    width:100%;
+}
+
+.rows{
+    display:flex;
+    flex-direction: column;
+
+    height:100%;
+}
+
+.image-column{
+    display:flex;
+    flex-direction: column;
+
+    height: fit-content;
+    
+    flex-basis: 15vw; 
+    
+    flex-shrink: 1; 
+    
+    min-width: 1vw;
+
+    margin: var(--generic-margin / 2);
+}
+
+  .tabheader{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    width:inherit;
+    padding: 10px;
+    background-color: #3D5A80;
+    color: white;
+}
+
+.paddedbox{
+    position: relative;
+
+    height:inherit;
+    width:inherit;
+
+    margin: var(--generic-margin);
+}
