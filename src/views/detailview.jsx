@@ -1,12 +1,24 @@
+import ImgButton from "../components/ImgButton.jsx";
+
 import ImageColumn from "../components/ImageColumns.jsx";
+import ImageDetail from "../components/ImageDetail.jsx";
+
+import { useParams } from "react-router-dom";
 
 import { useState, useEffect } from "react";
 
 import { GetItem, GetItems } from "../debug/debugItems.jsx";
 
-export default function Homepage() {
-    const columnCount = 6;
+export default function Detailview() {
+    const { id } = useParams();
+
+    const columnCount = 5;
     const columnData = DistributeItems(GetItems(100), columnCount);
+
+    const firstThreeColumns = columnData.slice(0, 3);
+    const nextTwoColumns = columnData.slice(3, 5);
+
+    console.log(columnData);
 
     const [searchValue, setSearchValue] = useState("");
 
@@ -30,7 +42,20 @@ export default function Homepage() {
             <div className="spacer" />
 
             <div className="columns">
-                {columnData.map((item, index) => (
+                <div className="width60">
+                    <div className="columns">
+                    <div className="floatingimgbuttoncontainer">
+                        <ImgButton />
+                    </div>
+                    <ImageDetail data={GetItem(id)} />
+                    </div>
+                    <div className="columns">
+                        {firstThreeColumns.map((item, index) => (
+                            <ImageColumn key={index} data={item} />
+                        ))}
+                    </div>
+                </div>
+                {nextTwoColumns.map((item, index) => (
                     <ImageColumn key={index} data={item} />
                 ))}
             </div>

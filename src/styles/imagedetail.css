@@ -1,0 +1,45 @@
+.detailcard{
+    display: flex;
+    flex-direction: column;
+
+    width: 80%;
+    height: 100%;
+
+    border-style: solid;
+    border-width: 2px;
+    border-color: var(--page-lining-color);
+
+    border-radius: var(--image-radius);
+}
+
+.detailcard-return{
+    width: 15%;
+
+    margin: var(--generic-margin);
+}
+
+.detailcard-actions{
+    margin-left: auto;
+
+    padding: var(--generic-margin);
+}
+
+.detailcard-container{
+    width: 100%;
+    height: 100%;
+}
+
+.detailcard-img{
+    display: block; 
+    
+    margin-left: auto;
+    margin-right: auto;
+
+    width:65%;
+
+    border-radius: var(--image-radius);
+}
+
+.detailcard-name{
+    padding: var(--generic-margin);
+}
