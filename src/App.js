@@ -1,45 +1,31 @@
-import logo from './logo.svg';
-// import './App.css';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
 import "./styles/generic.css"
-import ImageColumn from './views/ImageColumns.jsx';
 
-import ImagePreview from "./views/ImagePreview.jsx"
+import Homebar from './views/homebar';
+
+import Homepage from './views/homepage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
+    <div>
+        <header>
         
-              </header>
+        </header>
 
-        <div className='columns'>
-        < ImageColumn />
-        < ImageColumn />
-        < ImageColumn />
-        < ImageColumn />
-        < ImageColumn />
-
-
-        </div>
-
+        <BrowserRouter>
+            <Homebar />
+            
+            <div className="pagecontent">
+            <Routes>
+                <Route path="/" element={<Homepage />} />
+                <Route path="/about" element={<Homepage />} />
+                <Route path="/contact" element={<Homepage />} />
+            </Routes>
+            </div>
+        </BrowserRouter>
     </div>
   );
 }
 
 export default App;
-
-/*
-<img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-*/

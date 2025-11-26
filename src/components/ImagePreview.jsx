@@ -10,7 +10,7 @@ import d9 from "../debug/d9.png";
 import d10 from "../debug/d10.png";
 import d11 from "../debug/d11.png";
 import d12 from "../debug/d12.png";
-import d13 from "../debug/d13.jpg";
+import d13 from "../debug/d13.png";
 import d14 from "../debug/d14.png";
 import d15 from "../debug/d15.png";
 

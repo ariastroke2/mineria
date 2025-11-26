@@ -2,15 +2,23 @@
 
 }*/
   :root {
-    --primary-color: #ff0000;
+    --primary-color: #8F6593;
   
-    --primary-color-button: #ff0000;
+    --primary-color-button: #AEA4BF;
   
-    --page-background-color: #f7f6f9;
+    --page-background-color: #F3F3EE;
+
+    --page-secondary-background-color: #E3E4DB;
+
+    --page-lining-color: #CDCDCD;
+
+    --page-contrast-color: #3B252C;
 
     --image-radius: 1.5vw;
 
     --generic-margin: 10px;
+
+    --content-size: 95%;
   
     /*--primary-font: Ambit;*/
   }
@@ -19,9 +27,21 @@
     font-family: Ambit;
   }*/
 
+  * { 
+    box-sizing: border-box; 
+    color: var(--page-contrast-color);
+}
+
 input{
-    padding:5px;
-    border-radius: 5px;
+    padding: calc(var(--generic-margin) * 2);
+    border-radius: var(--image-radius);
+
+    width:100%;
+    height: 7vh;
+
+    background-color: var(--page-secondary-background-color);
+
+    border-style: none;
 }
 
 textarea{
@@ -39,10 +59,12 @@ select{
 
     height: 40px;
 
-    color: white;
+    color: var(--page-lining-color);
 
-    background-color: var(--primary-color-button);
+    background-color: var(--page-contrast-color);
     border-radius: var(--image-radius);
+
+    border-style: none;
 
     width: fit-content;
     
@@ -53,7 +75,7 @@ select{
   }
   
   button:hover{
-      background-color: color-mix(--primary-color-button, 75%, #000000);
+      background-color: color-mix(in srgb, var(--page-contrast-color) 90%, #ffffff);
   }
 
   img{
@@ -65,9 +87,28 @@ select{
     margin: 1px;
 }
 
+.pagecontent{
+    position: absolute;
+
+    top:0;
+    left: calc(100% - var(--content-size));
+
+    width: var(--content-size);
+    height: fit-content;
+
+    padding: var(--generic-margin);
+
+    background-color: var(--page-background-color);
+}
+
 .spacer {
     height:1vw;
     width: 1vw;
+}
+
+.bigspacer {
+    height:100%;
+    width: 100%;
 }
 
 .toprightcorner{
@@ -107,6 +148,7 @@ select{
     flex-basis: 15vw; 
     
     flex-shrink: 1; 
+    flex-grow: 1;
     
     min-width: 1vw;
 
