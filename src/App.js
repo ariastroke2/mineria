@@ -6,6 +6,7 @@ import Homebar from './views/homebar';
 
 import Homepage from './views/homepage';
 import Detailview from './views/detailview';
+import DebugView from './views/debugview';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Homepage />} />
                 <Route path="/win/:id" element={<Detailview />} />
+                <Route path="/debug" element={<DebugView />} />
                 <Route path="/contact" element={<Homepage />} />
             </Routes>
             </div>
