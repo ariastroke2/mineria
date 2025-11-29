@@ -13,6 +13,14 @@ import d12  from "./d12.png";
 import d13  from "./d13.png";
 import d14  from "./d14.png";
 import d15  from "./d15.png";
+import d16  from "./d16.png";
+import d17  from "./d17.png";
+import d18  from "./d18.png";
+import d19  from "./d19.png";
+import d20  from "./d20.png";
+import d21  from "./d21.png";
+import d22  from "./d22.png";
+import d23  from "./d23.png";
 
 const images = [
     d1,
@@ -30,6 +38,14 @@ const images = [
     d13,
     d14,
     d15,
+    d16,
+    d17,
+    d18,
+    d19,
+    d20,
+    d21,
+    d22,
+    d23
 ];
 
 const titles = {
@@ -48,6 +64,14 @@ const titles = {
     12: "Shiny yet deadly coins.png",
     13: "Angry.png",
     14: "Why the long face?.png",
+    15: "Image1",
+    16: "Image1",
+    17: "Image1",
+    18: "Image1",
+    19: "Image1",
+    20: "Image1",
+    21: "Image1",
+    22: "Image1"
 };
 
 export const GetItem = (index) => {
