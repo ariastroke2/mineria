@@ -6,6 +6,7 @@ import IconHome from "../resources/images/home-icon.svg";
 import IconSettings from "../resources/images/settings-icon.svg";
 import IconCreate from "../resources/images/create-icon.svg"
 import IconDebug from "../resources/images/debug-icon.svg"
+import IconProfile from "../resources/images/profile-icon.svg"
 
 import ImageButton from '../components/ImgButton';
 
@@ -28,6 +29,9 @@ export default function Homebar(){
                     <ImageButton icon={IconDebug} target={"/debug"}/>
                 </Link>
                 <div className='bigspacer'/>
+                <Link to="/profile">
+                    <ImageButton icon={IconProfile} target={"/profile"}/>
+                </Link>
                 <Link to="/settings">
                     <ImageButton icon={IconSettings} target={"/settings"}/>
                 </Link>
