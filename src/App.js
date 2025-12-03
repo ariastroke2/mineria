@@ -7,6 +7,7 @@ import Homebar from './views/homebar';
 import Homepage from './views/homepage';
 import Detailview from './views/detailview';
 import DebugView from './views/debugview';
+import ProfileView from './views/profileview';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/win/:id" element={<Detailview />} />
                 <Route path="/debug" element={<DebugView />} />
                 <Route path="/contact" element={<Homepage />} />
+                <Route path="/profile" element={<ProfileView />} />
             </Routes>
             </div>
         </BrowserRouter>
