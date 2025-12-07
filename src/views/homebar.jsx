@@ -7,8 +7,9 @@ import IconSettings from "../resources/images/settings-icon.svg";
 import IconCreate from "../resources/images/create-icon.svg"
 import IconDebug from "../resources/images/debug-icon.svg"
 import IconProfile from "../resources/images/profile-icon.svg"
+import IconBoard from "../resources/images/board-icon.svg"
 
-import ImageButton from '../components/ImgButton';
+import ImgNavigationButton from '../components/ImgNavigationButton';
 
 import "../styles/homebar.css";
 
@@ -16,24 +17,27 @@ export default function Homebar(){
     return (
         <nav className="homebar">
                 <Link to="/"> 
-                    <ImageButton icon={Logo} target={"/"}/>
+                    <ImgNavigationButton icon={Logo} target={"/"}/>
                 </Link>
                 <div className='spacer'/>
                 <Link to="/">
-                    <ImageButton icon={IconHome} target={"/"}/>
+                    <ImgNavigationButton icon={IconHome} target={"/"}/>
                 </Link>
                 <Link to="/create">
-                    <ImageButton icon={IconCreate} target={"/create"}/>
+                    <ImgNavigationButton icon={IconCreate} target={"/create"}/>
+                </Link>
+                <Link to="/USER-001/boards">
+                    <ImgNavigationButton icon={IconBoard} target={"/USER-001/boards"}/>
                 </Link>
                 <Link to="/debug">
-                    <ImageButton icon={IconDebug} target={"/debug"}/>
+                    <ImgNavigationButton icon={IconDebug} target={"/debug"}/>
                 </Link>
                 <div className='bigspacer'/>
                 <Link to="/profile">
-                    <ImageButton icon={IconProfile} target={"/profile"}/>
+                    <ImgNavigationButton icon={IconProfile} target={"/profile"}/>
                 </Link>
                 <Link to="/settings">
-                    <ImageButton icon={IconSettings} target={"/settings"}/>
+                    <ImgNavigationButton icon={IconSettings} target={"/settings"}/>
                 </Link>
         </nav>
     )

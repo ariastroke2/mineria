@@ -8,6 +8,8 @@ import Homepage from './views/homepage';
 import Detailview from './views/detailview';
 import DebugView from './views/debugview';
 import ProfileView from './views/profileview';
+import BoardSummaryView from './views/boardSummaryView';
+import BoardView from './views/boardView.jsx';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
                 <Route path="/win/:id" element={<Detailview />} />
                 <Route path="/debug" element={<DebugView />} />
                 <Route path="/contact" element={<Homepage />} />
+                <Route path="/:user/boards" element={<BoardSummaryView />} />
+                <Route path="/boards/:id" element={<BoardView />} />
                 <Route path="/profile" element={<ProfileView />} />
             </Routes>
             </div>

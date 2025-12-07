@@ -1,0 +1,18 @@
+.blaxcard{
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    
+    pointer-events: none;
+    
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.blaxcard-img{
+    
+}

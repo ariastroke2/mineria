@@ -16,7 +16,7 @@ export default function ImagePreview({ data }) {
     const navigate = useNavigate();
 
     function HandleClick(e) {
-        navigate(`/win/${data.id}`);
+        navigate(`/win/${data.id_pin}`);
         window.scroll({ top: 0 });
     }
 
@@ -24,28 +24,19 @@ export default function ImagePreview({ data }) {
         <div className="previewcard" onClick={HandleClick}>
             <div className="previewcard-imgcontainer">
                 <div className="previewcard-actions">
-                    <div className="paddedbox">
+                    <div className="toprightcorner paddedbox">
                         <button
-                            className="toprightcorner"
+                            
                             onClick={(e) => {
                                 console.log("CLACK");
                                 e.stopPropagation();
                             }}
                         >
-                            Clicky
-                        </button>
-                        <button
-                            className="topleftcorner"
-                            onClick={(e) => {
-                                console.log("CLACK2");
-                                e.stopPropagation();
-                            }}
-                        >
-                            Clicky2
+                            Guardar
                         </button>
                     </div>
                 </div>
-                <img className="previewcard-img" src={data.img} />
+                <img className="previewcard-img" src={data.url_image} />
             </div>
             <p className="previewcard-name"> {data.title}</p>
         </div>

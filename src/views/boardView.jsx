@@ -1,26 +1,32 @@
 import ImageColumn from "../components/ImageColumns.jsx";
-import TitleBar from "../components/TitleBar.jsx"
 
 import { useState, useEffect } from "react";
 
 import BlaxLoad from "../components/BlaxThink.jsx";
 
 import { GET_Request } from "../connect/requests.js";
+import { useParams } from "react-router-dom";
+import TitleBar from "../components/TitleBar.jsx";
 
-const url = "http://localhost:3001/api/pins?userId=USER-001";
+const url = "http://localhost:3001/api/boards/";
 
-export default function Homepage() {
+export default function BoardView() {
+
+    const { id } = useParams();
+
     const columnCount = 6;
     const [columnData, setColumnData] = useState([]);
 
+    const [rawData, setRawData] = useState({});
+
     const [searchValue, setSearchValue] = useState("");
 
-    const [loaded, setLoaded] = useState(false);
+        const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
         setLoaded(false);
         GetData();
-    }, []);
+    }, [])
 
     const handleBlur = () => {
         setSearchValue("");
@@ -30,25 +36,35 @@ export default function Homepage() {
         setSearchValue(event.target.value);
     };
 
-    async function GetData() {
-        try {
+    async function GetData(){
+        try{
             const data = await GET_Request({
-                url: url,
+                url: `http://localhost:3001/api/boards/${id}`
             });
 
-            setColumnData(DistributeItems(data, columnCount));
+            console.log(data);
+
+            setColumnData(DistributeItems(data?.pins, columnCount));
+
+            setRawData(data);
 
             setLoaded(true);
-        } catch (error) {
+        }catch (error) {
+
             console.log(error);
         }
     }
 
     return (
-        <div>
-            {!loaded && <BlaxLoad />}
+        <div className="paddedbox">
+            {!loaded && <BlaxLoad />}      
 
             <TitleBar />
+
+            <h1>{rawData?.title}</h1>
+            <h2>{rawData?.description}</h2>
+
+            <div className="spacer" />
 
             <div className="columns">
                 {columnData.map((item, index) => (

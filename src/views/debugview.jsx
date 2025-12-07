@@ -6,7 +6,7 @@ import Logo from "../resources/images/logo.png";
 
 import IconDebug from "../resources/images/debug-icon.svg"
 
-import ImageButton from '../components/ImgButton';
+import ImgNavigationButton from '../components/ImgNavigationButton';
 
 import IconCheck from "../resources/images/check-icon.svg"
 import IconX from "../resources/images/x-icon.svg"
@@ -39,7 +39,7 @@ export default function DebugView(){
             <div className='rows'>
                 <div className='columns'>
                     <div className='floatingimgbuttoncontainer'>
-                        <ImageButton />
+                        <ImgNavigationButton />
                     </div>
 
                     <div className='aligncenter'>

@@ -1,4 +1,4 @@
-import ImgButton from "../components/ImgButton.jsx";
+import ImgNavigationButton from "../components/ImgNavigationButton.jsx";
 
 import ImageColumn from "../components/ImageColumns.jsx";
 import ImageDetail from "../components/ImageDetail.jsx";
@@ -7,18 +7,47 @@ import { useParams } from "react-router-dom";
 
 import { useState, useEffect } from "react";
 
-import { GetItem, GetItems } from "../debug/debugItems.jsx";
+import { GET_Request } from "../connect/requests.js";
+
+import BlaxLoad from "../components/BlaxThink.jsx";
+import TitleBar from "../components/TitleBar.jsx";
+
+const url = "http://localhost:3001/api/pin/";
 
 export default function Detailview() {
+
     const { id } = useParams();
 
     const columnCount = 5;
-    const columnData = DistributeItems(GetItems(100), columnCount);
+    const [columnData, setColumnData] = useState([]);
+    const [detailData, setDetailData] = useState({});
+
+    const [loaded, setLoaded] = useState(false);
 
     const firstThreeColumns = columnData.slice(0, 3);
     const nextTwoColumns = columnData.slice(3, 5);
 
-    console.log(columnData);
+    useEffect(() => {
+        setLoaded(false);
+        GetData();
+    }, [id])
+
+    async function GetData(){
+            try{
+                const data = await GET_Request({
+                    url: (url+id)
+                });
+                
+                setColumnData(DistributeItems(data.suggestedSimilarPins, columnCount));
+                setDetailData(data.mainPin);
+
+                setLoaded(true);
+
+            }catch (error) {
+    
+                console.log(error);
+            }
+        }
 
     const [searchValue, setSearchValue] = useState("");
 
@@ -30,14 +59,12 @@ export default function Detailview() {
         setSearchValue(event.target.value);
     };
 
+    //if(!loaded) 
     return (
         <div>
-            <input
-                placeholder="Buscar..."
-                value={searchValue} // El valor del input es controlado por el estado
-                onChange={handleChange} // Actualiza el estado al escribir
-                onBlur={handleBlur}
-            />
+            {!loaded && <BlaxLoad />}     
+
+            <TitleBar />     
 
             <div className="spacer" />
 
@@ -45,17 +72,17 @@ export default function Detailview() {
                 <div className="width60">
                     <div className="columns">
                     <div className="floatingimgbuttoncontainer">
-                        <ImgButton />
+                        <ImgNavigationButton />
                     </div>
-                    <ImageDetail data={GetItem(id)} />
+                    <ImageDetail data={detailData} />
                     </div>
                     <div className="columns">
-                        {firstThreeColumns.map((item, index) => (
+                        {columnData.slice(2, 5).map((item, index) => (
                             <ImageColumn key={index} data={item} />
                         ))}
                     </div>
                 </div>
-                {nextTwoColumns.map((item, index) => (
+                {columnData.slice(0, 2).map((item, index) => (
                     <ImageColumn key={index} data={item} />
                 ))}
             </div>

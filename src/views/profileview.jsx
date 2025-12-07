@@ -6,6 +6,8 @@ import { GetItems } from "../debug/debugItems.jsx";
 import profilePic from "../debug/p1.png";
 
 import "../styles/profileview.css";
+import BlaxLoad from "../components/BlaxThink.jsx";
+import TitleBar from "../components/TitleBar.jsx";
 
 const mockUser = {
     username: "@xime_macias",
@@ -27,6 +29,11 @@ export default function ProfileView() {
     const columnData = DistributeItems(currentPins, columnCount);
 
     return (
+        <div>
+            {/*!loaded && <BlaxLoad />*/}     
+            
+                        <TitleBar />   
+
         <div className="profile-container">
             <div className="profile-header">
                 {user && (
@@ -71,6 +78,7 @@ export default function ProfileView() {
                     </p>
                 )}
             </div>
+        </div>
         </div>
     );
 }

@@ -178,10 +178,10 @@ select{
 .paddedbox{
     position: relative;
 
-    height:inherit;
-    width:inherit;
+    height:100%;
+    width:100%;
 
-    margin: var(--generic-margin);
+    padding: var(--generic-margin);
 }
 
 .imgbutton-container{
@@ -246,4 +246,22 @@ select{
     height: 4vw;
 
     margin: var(--generic-margin);
+}
+
+h2, h3, h4, h5, h6 {
+    margin-top: var(--generic-margin);
+    margin-bottom: var(--generic-margin);
+}
+
+.title{
+    position: sticky;
+
+    background-color: var(--page-secondary-background-color);
+
+    display:flex;
+    flex-direction: row;
+
+    width:100%;
+
+    border-radius: var(--image-radius);
 }
