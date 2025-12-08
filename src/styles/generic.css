@@ -41,15 +41,33 @@ input{
 
     background-color: var(--page-secondary-background-color);
 
+    overflow-y: visible;
+
     border-style: none;
+
+    
 }
+
+select {
+    padding: 1rem 1rem;                      /* solo horizontal */
+    border-radius: var(--image-radius);
+    width: 100%;
+    height: 7vh;                          /* suficiente */
+    background-color: var(--page-secondary-background-color);
+    border: none;
+    line-height: normal;                     /* centra el texto verticalmente */
+}
+
+option {
+    padding: 0;                           /* no hace caso de todas formas */
+    line-height: normal;                  /* seguro y estable */
+}
+
+/*select{
+    height: 10vh;
+}*/
 
 textarea{
-    padding:5px;
-    border-radius: 5px;
-}
-
-select{
     padding:5px;
     border-radius: 5px;
 }
@@ -83,8 +101,8 @@ select{
   }
 
 .nomargin{
-    padding: 1px;
-    margin: 1px;
+    padding: 0;
+    margin: 0;
 }
 
 .pagecontent{
@@ -121,18 +139,28 @@ select{
     width:40%;
 }
 
-.toprightcorner{
-    position: absolute;
+.aligntop{
+    position: relative;
 
-    top: 0;
-    right: 0;
+    margin-top: auto;
 }
 
-.topleftcorner{
-    position: absolute;
+.alignright{
+    position: relative;
 
-    top: 0;
-    left: 0;
+    margin-right: auto;
+}
+
+.alignbottom{
+    position: relative;
+
+    margin-bottom: auto;
+}
+
+.alignleft{
+    position: relative;
+
+    margin-left: auto;
 }
 
 .columns{
@@ -178,10 +206,12 @@ select{
 .paddedbox{
     position: relative;
 
-    height:100%;
-    width:100%;
-
     padding: var(--generic-margin);
+}
+
+.fillbox{
+    height: 100%;
+    width:100%;
 }
 
 .imgbutton-container{
@@ -264,4 +294,8 @@ h2, h3, h4, h5, h6 {
     width:100%;
 
     border-radius: var(--image-radius);
+}
+
+label{
+    margin: var(--generic-margin);
 }

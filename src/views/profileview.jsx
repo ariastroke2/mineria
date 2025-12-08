@@ -7,7 +7,6 @@ import profilePic from "../debug/p1.png";
 
 import "../styles/profileview.css";
 import BlaxLoad from "../components/BlaxThink.jsx";
-import TitleBar from "../components/TitleBar.jsx";
 
 const mockUser = {
     username: "@xime_macias",
@@ -32,8 +31,6 @@ export default function ProfileView() {
         <div>
             {/*!loaded && <BlaxLoad />*/}     
             
-                        <TitleBar />   
-
         <div className="profile-container">
             <div className="profile-header">
                 {user && (

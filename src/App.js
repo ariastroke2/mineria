@@ -11,6 +11,10 @@ import ProfileView from './views/profileview';
 import BoardSummaryView from './views/boardSummaryView';
 import BoardView from './views/boardView.jsx';
 
+import CreationPopup from './views/createPopup';
+import CreateBoard from './views/createBoardView.jsx';
+import TitleBar from './components/TitleBar.jsx';
+
 function App() {
   return (
     <div>
@@ -22,12 +26,15 @@ function App() {
             <Homebar />
             
             <div className="pagecontent">
+                <TitleBar />
             <Routes>
                 <Route path="/" element={<Homepage />} />
                 <Route path="/win/:id" element={<Detailview />} />
                 <Route path="/debug" element={<DebugView />} />
                 <Route path="/contact" element={<Homepage />} />
                 <Route path="/:user/boards" element={<BoardSummaryView />} />
+                <Route path="/create" element={<CreationPopup />} />
+                <Route path="/createboard" element={<CreateBoard />} />
                 <Route path="/boards/:id" element={<BoardView />} />
                 <Route path="/profile" element={<ProfileView />} />
             </Routes>

@@ -10,7 +10,6 @@ import { useState, useEffect } from "react";
 import { GET_Request } from "../connect/requests.js";
 
 import BlaxLoad from "../components/BlaxThink.jsx";
-import TitleBar from "../components/TitleBar.jsx";
 
 const url = "http://localhost:3001/api/pin/";
 
@@ -63,8 +62,6 @@ export default function Detailview() {
     return (
         <div>
             {!loaded && <BlaxLoad />}     
-
-            <TitleBar />     
 
             <div className="spacer" />
 

@@ -6,7 +6,6 @@ import BlaxLoad from "../components/BlaxThink.jsx";
 
 import { GET_Request } from "../connect/requests.js";
 import { useParams } from "react-router-dom";
-import TitleBar from "../components/TitleBar.jsx";
 
 const url = "http://localhost:3001/api/boards/";
 
@@ -58,8 +57,6 @@ export default function BoardView() {
     return (
         <div className="paddedbox">
             {!loaded && <BlaxLoad />}      
-
-            <TitleBar />
 
             <h1>{rawData?.title}</h1>
             <h2>{rawData?.description}</h2>

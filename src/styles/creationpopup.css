@@ -1,0 +1,54 @@
+/* Contenedor general del popup */
+.popup {
+    position: fixed;
+
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50vw, -50vh);
+
+    width: 100vw;
+    height: 100vh;
+
+    z-index: 10;
+}
+
+/* Capa oscura del fondo */
+.popup-background {
+    position: fixed;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    z-index: 11;
+}
+
+/* Contenido centrado del popup */
+.popup-content {
+    position: relative;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 65vw;
+    height: 85vh;
+
+    background-color: var(--page-background-color);
+    border-radius: var(--image-radius);
+
+    z-index: 12;
+}
+
+/* Vista previa de la imagen */
+.popup-preview {
+    object-fit: contain;
+
+    max-width: 50%;
+
+    max-height: 70vh;
+    height: fit-content;
+
+    border-radius: var(--image-radius);
+}

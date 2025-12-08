@@ -9,7 +9,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import BlaxLoad from "../components/BlaxThink";
-import TitleBar from "../components/TitleBar";
 
 const target_url = "http://localhost:3000/boards/"
 
@@ -51,8 +50,6 @@ export default function BoardSummaryView() {
         <div>
             {!loaded && <BlaxLoad />}
 
-            <TitleBar />
-
             <div className="columns">
                 <div className="floatingimgbuttoncontainer">
                     <ImgNavigationButton />
@@ -65,7 +62,7 @@ export default function BoardSummaryView() {
             </div>
 
             <div className="boardview-columns">
-                <div className="boardcard boardcard-create">
+                <div className="boardcard boardcard-create" onClick={()=>navigate("/createboard")}>
                     <div className="boardcard-create-label">Crear</div>
                 </div>
                 {boards.map((item, index) => (

@@ -1,5 +1,4 @@
 import ImageColumn from "../components/ImageColumns.jsx";
-import TitleBar from "../components/TitleBar.jsx"
 
 import { useState, useEffect } from "react";
 
@@ -47,8 +46,6 @@ export default function Homepage() {
     return (
         <div>
             {!loaded && <BlaxLoad />}
-
-            <TitleBar />
 
             <div className="columns">
                 {columnData.map((item, index) => (
