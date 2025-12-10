@@ -8,10 +8,11 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { GET_Request } from "../connect/requests.js";
+import { GetUserID } from "../connect/auth.js";
 
 import BlaxLoad from "../components/BlaxThink.jsx";
 
-const url = "http://localhost:3001/api/pin/";
+const baseUrl = "http://localhost:3001/api/pin/";
 
 export default function Detailview() {
 
@@ -34,10 +35,10 @@ export default function Detailview() {
     async function GetData(){
             try{
                 const data = await GET_Request({
-                    url: (url+id)
+                    url: `${baseUrl}${id}?userId=${GetUserID()}`
                 });
                 
-                setColumnData(DistributeItems(data.suggestedSimilarPins, columnCount));
+                setColumnData(DistributeItems(data.suggestedSimilarPins || [], columnCount));
                 setDetailData(data.mainPin);
 
                 setLoaded(true);
