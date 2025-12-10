@@ -10,10 +10,12 @@ import DebugView from './views/debugview';
 import ProfileView from './views/profileview';
 import BoardSummaryView from './views/boardSummaryView';
 import BoardView from './views/boardView.jsx';
+import TrendingView from './views/trendingview.jsx';
 
 import CreationPopup from './views/createPopup';
 import CreateBoard from './views/createBoardView.jsx';
 import TitleBar from './components/TitleBar.jsx';
+import UserSelector from './components/UserSelector.jsx';
 
 function App() {
   return (
@@ -24,11 +26,13 @@ function App() {
 
         <BrowserRouter>
             <Homebar />
+            <UserSelector />
             
             <div className="pagecontent">
                 <TitleBar />
             <Routes>
                 <Route path="/" element={<Homepage />} />
+                <Route path="/trending" element={<TrendingView />} />
                 <Route path="/win/:id" element={<Detailview />} />
                 <Route path="/debug" element={<DebugView />} />
                 <Route path="/contact" element={<Homepage />} />

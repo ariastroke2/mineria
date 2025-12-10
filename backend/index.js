@@ -17,6 +17,29 @@ const driver = neo4j.driver(
 
 // --- ENDPOINTS ---
 
+// GET ALL USERS (para el selector de usuarios)
+app.get('/api/users', async (req, res) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (u:User)
+            RETURN u.id_user AS id, u.name AS name, u.profile_picture AS profile_picture
+            ORDER BY u.name
+        `);
+        
+        const users = result.records.map(record => ({
+            id: record.get('id'),
+            name: record.get('name'),
+            profile_picture: record.get('profile_picture')
+        }));
+        
+        res.json(users);
+    } catch (error) {
+        console.error("Error en GET /api/users:", error);
+        res.status(500).json({ error: error.message });
+    } finally { await session.close(); }
+});
+
 // GET PINS (Feed Principal)
 app.get('/api/pins', async (req, res) => {
     const userId = req.query.userId || "USER-001";
@@ -57,6 +80,41 @@ app.get('/api/pins', async (req, res) => {
         }));
         res.json(pins);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally { await session.close(); }
+});
+
+// GET TRENDING PINS (ordenados por likes)
+app.get('/api/pins/trending', async (req, res) => {
+    const userId = req.query.userId || "USER-001";
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (p:Pin)
+            OPTIONAL MATCH (u:User)-[:CREATES]->(p)
+            OPTIONAL MATCH (:User)-[l:LIKES]->(p)
+            OPTIONAL MATCH (me:User {id_user: $userId})-[myLike:LIKES]->(p)
+            
+            WITH p, u, count(l) AS likesCount, myLike
+            WHERE likesCount > 0
+            
+            RETURN p, u.name AS creator, u.id_user AS creatorId, 
+                   likesCount, (myLike IS NOT NULL) AS likedByMe
+            ORDER BY likesCount DESC
+            LIMIT 50
+        `, { userId });
+        
+        const pins = result.records.map(record => ({
+            ...record.get('p').properties,
+            creator: record.get('creator') || "Anónimo",
+            creatorId: record.get('creatorId'),
+            likesCount: record.get('likesCount')?.low || record.get('likesCount') || 0,
+            likedByMe: record.get('likedByMe')
+        }));
+        
+        res.json(pins);
+    } catch (error) {
+        console.error("Error en GET /api/pins/trending:", error);
         res.status(500).json({ error: error.message });
     } finally { await session.close(); }
 });
@@ -330,6 +388,84 @@ app.get('/api/boards', async (req, res) => {
         const r = await session.run(`MATCH (b:Board) RETURN b.id_board AS id, b.title AS title ORDER BY b.created_at DESC`);
         res.json(r.records.map(rec => ({id: rec.get('id'), title: rec.get('title')})));
     } catch (e) { res.status(500).json(e); } finally { await session.close(); }
+});
+
+// GET BOARDS DE UN USUARIO (con previews de imágenes)
+app.get('/api/:user/boards', async (req, res) => {
+    const session = driver.session();
+    const userId = req.params.user;
+    try {
+        const r = await session.run(`
+            MATCH (u:User {id_user: $userId})-[:CREATES]->(b:Board)
+            OPTIONAL MATCH (b)-[:CONTAINS]->(p:Pin)
+            WITH b, p ORDER BY p.created_at DESC
+            WITH b, collect(p.url_image)[0..3] AS imgs
+            RETURN b.id_board AS id, b.title AS title, b.description AS description, imgs AS images
+            ORDER BY b.created_at DESC
+        `, { userId });
+        res.json(r.records.map(rec => ({
+            id: rec.get("id"), 
+            title: rec.get("title"),
+            description: rec.get("description"),
+            images: rec.get("images").filter(img => img != null)
+        })));
+    } catch (e) { 
+        console.error("Error en GET /api/:user/boards:", e);
+        res.status(500).json({ error: e.message }); 
+    } finally { await session.close(); }
+});
+
+// GET DETALLE DE UN BOARD (con sus pines)
+app.get('/api/boards/:boardId', async (req, res) => {
+    const session = driver.session();
+    const boardId = req.params.boardId;
+    try {
+        const r = await session.run(`
+            MATCH (b:Board {id_board: $boardId})
+            OPTIONAL MATCH (b)-[:CONTAINS]->(p:Pin)
+            OPTIONAL MATCH (creator:User)-[:CREATES]->(p)
+            RETURN b.title AS title, b.description AS description,
+                   collect({
+                       id_pin: p.id_pin, 
+                       title: p.title, 
+                       url_image: p.url_image,
+                       creator: creator.name
+                   }) AS pins
+        `, { boardId });
+        
+        if (r.records.length === 0) {
+            return res.status(404).json({ error: "Board no encontrado" });
+        }
+        
+        const record = r.records[0];
+        res.json({
+            title: record.get("title"),
+            description: record.get("description"),
+            pins: record.get("pins").filter(p => p.id_pin != null)
+        });
+    } catch (e) { 
+        console.error("Error en GET /api/boards/:boardId:", e);
+        res.status(500).json({ error: e.message }); 
+    } finally { await session.close(); }
+});
+
+// AGREGAR PIN A UN BOARD
+app.post('/api/boards/:boardId/add-pin', async (req, res) => {
+    const session = driver.session();
+    const { pinId } = req.body;
+    const { boardId } = req.params;
+    try {
+        const result = await session.run(`
+            MATCH (b:Board {id_board: $boardId})
+            MATCH (p:Pin {id_pin: $pinId})
+            MERGE (b)-[:CONTAINS]->(p)
+            RETURN p.id_pin AS addedPin
+        `, { boardId, pinId });
+        res.json({ success: true, pin: result.records[0]?.get("addedPin") });
+    } catch (err) {
+        console.error("Error en POST /api/boards/:boardId/add-pin:", err);
+        res.status(500).json({ error: err.message });
+    } finally { await session.close(); }
 });
 
 // CREATE BOARD
