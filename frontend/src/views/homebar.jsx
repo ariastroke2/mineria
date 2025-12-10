@@ -12,6 +12,7 @@ import IconBoard from "../resources/images/board-icon.svg"
 import ImgNavigationButton from '../components/ImgNavigationButton';
 
 import "../styles/homebar.css";
+import { GetUserID } from '../connect/auth';
 
 export default function Homebar(){
     return (
@@ -26,8 +27,8 @@ export default function Homebar(){
                 <Link to="/create">
                     <ImgNavigationButton icon={IconCreate} target={"/create"}/>
                 </Link>
-                <Link to="/USER-001/boards">
-                    <ImgNavigationButton icon={IconBoard} target={"/USER-001/boards"}/>
+                <Link to={`/${GetUserID()}/boards`}>
+                    <ImgNavigationButton icon={IconBoard} target={`/${GetUserID()}/boards`}/>
                 </Link>
                 <Link to="/debug">
                     <ImgNavigationButton icon={IconDebug} target={"/debug"}/>

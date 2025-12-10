@@ -5,8 +5,9 @@ import { useState, useEffect } from "react";
 import BlaxLoad from "../components/BlaxThink.jsx";
 
 import { GET_Request } from "../connect/requests.js";
+import { GetUserID } from "../connect/auth.js";
 
-const url = "http://localhost:3001/api/pins?userId=USER-001";
+const url = "http://localhost:3001/api/pins?userId=";
 
 export default function Homepage() {
     const columnCount = 6;
@@ -32,7 +33,7 @@ export default function Homepage() {
     async function GetData() {
         try {
             const data = await GET_Request({
-                url: url,
+                url: url + GetUserID(),
             });
 
             setColumnData(DistributeItems(data, columnCount));

@@ -81,12 +81,12 @@ export default function ImagePreview({ data }) {
             console.log(url);
             await POST_Request({
                 url: url,
-                data: { userId: "USER-001", text: writingComment },
+                data: { userId: GetUserID(), text: writingComment },
             });
 
             setComments((prev) => [
                 ...prev,
-                { author: "USER-001", authorPic: null, text: writingComment },
+                { author: GetUserID(), authorPic: null, text: writingComment },
             ]);
         } catch (error) {
             console.log(error);

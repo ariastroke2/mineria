@@ -26,7 +26,7 @@ export default function BoardSummaryView() {
     async function GetData() {
         try {
             const data = await GET_Request({
-                url: "http://localhost:3001/api/USER-001/boards",
+                url: `http://localhost:3001/api/${user}/boards`,
             });
 
             console.log(data);
