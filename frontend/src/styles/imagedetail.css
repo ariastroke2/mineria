@@ -90,6 +90,8 @@
 .detailcard-creator {
     padding: var(--generic-margin);
     padding-top: calc(var(--generic-margin) * 2);
+
+    cursor: pointer;
 }
 
 .creator-info-detail {

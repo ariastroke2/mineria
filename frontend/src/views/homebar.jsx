@@ -24,6 +24,7 @@ export default function Homebar(){
     }, []);
 
     const boardsPath = `/${userId}/boards`;
+    const profilePath = `/${userId}/profile`;
 
     return (
         <nav className="homebar">
@@ -43,16 +44,22 @@ export default function Homebar(){
                 <Link to={boardsPath}>
                     <ImgNavigationButton icon={IconBoard} target={boardsPath}/>
                 </Link>
-                <Link to="/debug">
-                    <ImgNavigationButton icon={IconDebug} target={"/debug"}/>
-                </Link>
+                
                 <div className='bigspacer'/>
-                <Link to="/profile">
-                    <ImgNavigationButton icon={IconProfile} target={"/profile"}/>
+                <Link to={profilePath}>
+                    <ImgNavigationButton icon={IconProfile} target={profilePath}/>
                 </Link>
-                <Link to="/settings">
-                    <ImgNavigationButton icon={IconSettings} target={"/settings"}/>
-                </Link>
+                
         </nav>
     )
 }
+
+/*
+<Link to="/settings">
+                    <ImgNavigationButton icon={IconSettings} target={"/settings"}/>
+                </Link>
+
+<Link to="/debug">
+                    <ImgNavigationButton icon={IconDebug} target={"/debug"}/>
+                </Link>
+*/

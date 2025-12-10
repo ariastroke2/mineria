@@ -7,9 +7,14 @@ import { GetUserID } from "../connect/auth.js";
 
 import "../styles/profileview.css";
 import BlaxLoad from "../components/BlaxThink.jsx";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProfileView() {
     const columnCount = 6;
+
+    const { userParam } = useParams();
+
+    const navigate = useNavigate();
 
     const [user, setUser] = useState(null);
     const [savedPins, setSavedPins] = useState([]);
@@ -25,10 +30,12 @@ export default function ProfileView() {
 
     useEffect(() => {
         fetchProfileData();
-    }, []);
+        setShowFollowersModal(false);
+        setShowFollowingModal(false);
+    }, [userParam]);
 
     async function fetchProfileData() {
-        const userId = GetUserID();
+        const userId = userParam;
         try {
             // Obtener datos del usuario, pins guardados, pins likeados, followers y following
             const [userData, savedData, likedData, followersData, followingData] = await Promise.all([
@@ -136,7 +143,7 @@ export default function ProfileView() {
                     <div className="modal-body">
                         {followers.length > 0 ? (
                             followers.map((user, index) => (
-                                <div key={index} className="user-item">
+                                <div key={index} className="user-item" onClick={()=>navigate(`/${user.id}/profile`)}>
                                     <img 
                                         className="user-avatar" 
                                         src={user.profile_picture || "https://via.placeholder.com/40"} 
@@ -164,7 +171,7 @@ export default function ProfileView() {
                     <div className="modal-body">
                         {following.length > 0 ? (
                             following.map((user, index) => (
-                                <div key={index} className="user-item">
+                                <div key={index} className="user-item" onClick={()=>navigate(`/${user.id}/profile`)}>
                                     <img 
                                         className="user-avatar" 
                                         src={user.profile_picture || "https://via.placeholder.com/40"} 

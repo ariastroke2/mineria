@@ -127,13 +127,15 @@ app.get('/api/pin/:id', async (req, res) => {
             OPTIONAL MATCH (:User)-[l:LIKES]->(p)
             OPTIONAL MATCH (me:User {id_user: $userId})-[myLike:LIKES]->(p)
             OPTIONAL MATCH (me)-[followRel:FOLLOWS]->(u)
-            OPTIONAL MATCH (c:Comment)-[:ON]->(p)<-[:WROTE]-(author:User)
+            OPTIONAL MATCH (c:Comment)-[:ON]->(p)
+            OPTIONAL MATCH (author:User)-[:WROTE]->(c)
+
             
             WITH p, u, b, count(DISTINCT l) AS likesCount, myLike, followRel, c, author
             ORDER BY c.created_at DESC
             
             WITH p, u, b, likesCount, myLike, followRel,
-                 collect({id: c.id_comment, text: c.body, author: author.name, date: c.created_at}) AS comments
+                 collect({id: c.id_comment, text: c.body, author: author.name, authorPic: author.profile_picture, date: c.created_at}) AS comments
             
             RETURN p, u.name AS creator, u.id_user AS creatorId, u.profile_picture AS creatorPic,
                    b.title AS board, b.id_board AS boardId, likesCount, 

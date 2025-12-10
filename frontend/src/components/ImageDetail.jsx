@@ -4,6 +4,8 @@ import ImageButton from "./ImgButton";
 import { GET_Request, POST_Request } from "../connect/requests";
 import { GetUserID } from "../connect/auth";
 import HeartIcon from "../resources/images/heart-icon.svg";
+import SendIcon from "../resources/images/send-icon.svg";
+import { useNavigate } from "react-router-dom";
 
 /* 
 data object format
@@ -25,6 +27,10 @@ export default function ImagePreview({ data }) {
         setIsFollowing(data.isFollowing || false);
         GetSelectableBoards();
     }, [data]);
+
+    const navigate = useNavigate();
+
+    console.log(data);
 
     const [display, setDisplay] = useState(data);
     const [comments, setComments] = useState([]);
@@ -86,7 +92,7 @@ export default function ImagePreview({ data }) {
 
             setComments((prev) => [
                 ...prev,
-                { author: GetUserID(), authorPic: null, text: writingComment },
+                { author: "Yo", authorPic: null, text: writingComment },
             ]);
         } catch (error) {
             console.log(error);
@@ -180,7 +186,7 @@ export default function ImagePreview({ data }) {
             </div>
             
             {/* Creador y botón de Follow */}
-            <div className="detailcard-creator">
+            <div className="detailcard-creator" onClick={()=>navigate(`/${data.creatorId}/profile`)}>
                 <div className="creator-info-detail">
                     <span className="creator-name-detail">{data.creator || "Anónimo"}</span>
                     {data.creatorId && data.creatorId !== GetUserID() && (
@@ -224,7 +230,7 @@ export default function ImagePreview({ data }) {
                     />
                     <div className="aligncenter">
                         <div className="floatingimgbuttoncontainer">
-                            <ImageButton callback={postComment} />
+                            <ImageButton icon={SendIcon} callback={postComment} />
                         </div>
                     </div>
                 </div>

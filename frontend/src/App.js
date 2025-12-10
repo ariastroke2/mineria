@@ -41,7 +41,7 @@ function App() {
                 <Route path="/create" element={<CreationPopup />} />
                 <Route path="/createboard" element={<CreateBoard />} />
                 <Route path="/boards/:id" element={<BoardView />} />
-                <Route path="/profile" element={<ProfileView />} />
+                <Route path="/:userParam/profile" element={<ProfileView />} />
                 <Route path="/search/:searchValue" element={<SearchPinsView />} />
             </Routes>
             </div>
