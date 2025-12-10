@@ -3,6 +3,7 @@ import "../styles/imagedetail.css";
 import ImageButton from "./ImgButton";
 import { GET_Request, POST_Request } from "../connect/requests";
 import { GetUserID } from "../connect/auth";
+import HeartIcon from "../resources/images/heart-icon.svg";
 
 /* 
 data object format
@@ -17,8 +18,11 @@ data object format
 export default function ImagePreview({ data }) {
     useEffect(() => {
         setDisplay(data);
-        setComments(data.comments);
+        setComments(data.comments || []);
         setWritingComment("");
+        setIsLiked(data.likedByMe || false);
+        setLikesCount(data.likesCount || 0);
+        setIsFollowing(data.isFollowing || false);
         GetSelectableBoards();
     }, [data]);
 
@@ -32,6 +36,10 @@ export default function ImagePreview({ data }) {
     const [boards, setBoards] = useState([]);
 
     const [writingComment, setWritingComment] = useState("");
+
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(0);
+    const [isFollowing, setIsFollowing] = useState(false);
 
     async function GetSelectableBoards() {
         try {
@@ -99,6 +107,36 @@ export default function ImagePreview({ data }) {
         }
     }
 
+    async function toggleLike() {
+        try {
+            const url = `http://localhost:3001/api/pins/${data.id_pin}/like`;
+            const response = await POST_Request({
+                url: url,
+                data: { userId: GetUserID() },
+            });
+            
+            setIsLiked(response.isLiked);
+            setLikesCount(response.likesCount);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function toggleFollow() {
+        // No permitir seguirse a uno mismo
+        if (data.creatorId === GetUserID()) return;
+        
+        try {
+            const response = await POST_Request({
+                url: `http://localhost:3001/api/users/${data.creatorId}/follow`,
+                data: { userId: GetUserID() }
+            });
+            setIsFollowing(response.isFollowing);
+        } catch (error) {
+            console.error("Error al seguir usuario:", error);
+        }
+    }
+
     return (
         <div className="detailcard">
             <div className="detailcard-actions">
@@ -125,11 +163,37 @@ export default function ImagePreview({ data }) {
                     >
                         Guardar
                     </button>
+                    <button
+                        className={`like-button ${isLiked ? 'liked' : ''}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            toggleLike();
+                        }}
+                    >
+                        <img src={HeartIcon} alt="Like" className="heart-icon" />
+                        <span className="likes-count">{likesCount}</span>
+                    </button>
                 </div>
             </div>
             <div className="detailcard-container">
                 <img className="detailcard-img" src={display.url_image} />
             </div>
+            
+            {/* Creador y botón de Follow */}
+            <div className="detailcard-creator">
+                <div className="creator-info-detail">
+                    <span className="creator-name-detail">{data.creator || "Anónimo"}</span>
+                    {data.creatorId && data.creatorId !== GetUserID() && (
+                        <button
+                            className={`follow-btn-detail ${isFollowing ? 'following' : ''}`}
+                            onClick={toggleFollow}
+                        >
+                            {isFollowing ? '✓ Siguiendo' : '+ Seguir'}
+                        </button>
+                    )}
+                </div>
+            </div>
+            
             <h4 className="detailcard-name"> {display.title}</h4>
             <p className="detailcard-name"> {display.description}</p>
 

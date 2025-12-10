@@ -1,70 +1,107 @@
-# Getting Started with Create React App
+# Pinterest Clone - Minería de Datos
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicación tipo Pinterest con React (Frontend) y Node.js/Express con Neo4j (Backend).
 
-## Available Scripts
+## Requisitos
 
-In the project directory, you can run:
+- Node.js (v18 o superior)
+- npm
+- Base de datos Neo4j (configurada en la nube)
 
-### `npm start`
+## Estructura del Proyecto
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+├── mineria/                    # Frontend (React)
+│   ├── src/
+│   ├── public/
+│   └── package.json
+│
+└── Social-Network-Pinterest/   # Backend (Node.js + Neo4j)
+    └── backend/
+        ├── index.js
+        └── package.json
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Configuración
 
-### `npm test`
+### 1. Variables de Entorno (Backend)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Crear archivo `.env` en la carpeta del backend (`Social-Network-Pinterest/backend/`):
 
-### `npm run build`
+```env
+NEO4J_URI=neo4j+s://tu-instancia.databases.neo4j.io
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=tu_password
+PORT=3001
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Iniciar la Aplicación
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Opción 1: Iniciar por separado
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Backend (Puerto 3001)
 
-### `npm run eject`
+```bash
+# Ir a la carpeta del backend
+cd ~/Desktop/Social-Network-Pinterest/backend
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Instalar dependencias (solo la primera vez)
+npm install
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Iniciar el servidor
+node index.js
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Deberías ver: `Backend corriendo en puerto 3001`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### Frontend (Puerto 3000)
 
-## Learn More
+```bash
+# Ir a la carpeta del frontend
+cd ~/Desktop/mineria
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Instalar dependencias (solo la primera vez)
+npm install
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Iniciar la aplicación
+npm start
+```
 
-### Code Splitting
+Se abrirá automáticamente en [http://localhost:3000](http://localhost:3000)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Opción 2: Iniciar ambos con un comando
 
-### Analyzing the Bundle Size
+```bash
+# Terminal 1 - Backend
+cd ~/Desktop/Social-Network-Pinterest/backend && node index.js
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Terminal 2 - Frontend
+cd ~/Desktop/mineria && npm start
+```
 
-### Making a Progressive Web App
+## Endpoints del Backend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/pins` | Obtener todos los pins |
+| GET | `/api/pin/:id` | Obtener detalle de un pin |
+| POST | `/api/pins` | Crear un nuevo pin |
+| POST | `/api/pins/:id/like` | Dar/quitar like a un pin |
+| POST | `/api/pins/:id/comment` | Comentar en un pin |
+| GET | `/api/boards` | Obtener todos los boards |
+| POST | `/api/boards` | Crear un nuevo board |
+| GET | `/api/user/:id` | Obtener perfil de usuario |
+| GET | `/api/user/:id/saved-pins` | Pins guardados del usuario |
+| GET | `/api/user/:id/liked-pins` | Pins que le gustan al usuario |
 
-### Advanced Configuration
+## Tecnologías
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **Frontend:** React 19, React Router, Axios
+- **Backend:** Express 5, Neo4j Driver
+- **Base de Datos:** Neo4j (Graph Database)
 
-### Deployment
+## Notas
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- El frontend corre en el puerto `3000`
+- El backend corre en el puerto `3001`
+- Asegúrate de que el backend esté corriendo antes de usar el frontend

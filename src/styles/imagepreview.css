@@ -53,8 +53,8 @@
 .previewcard-img{
     width:100%;
     z-index: 0;
-
     display: block;
+    border-radius: var(--image-radius);
 }
 
 .previewcard-overlay:hover {
@@ -87,4 +87,62 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Creator overlay - siempre visible */
+.creator-overlay {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+}
+
+.creator-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 6px 10px;
+    border-radius: 20px;
+}
+
+.creator-name {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.follow-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background-color: white;
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.follow-btn:hover {
+    transform: scale(1.1);
+    background-color: #e0e0e0;
+}
+
+.follow-btn.following {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.follow-btn.following:hover {
+    background-color: #45a049;
 }

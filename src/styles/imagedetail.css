@@ -52,3 +52,79 @@
     padding: var(--generic-margin);
     background-color: var(--page-secondary-background-color);
 }
+
+/* Like Button Styles */
+.like-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    margin-left: 8px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.like-button .heart-icon {
+    width: 22px;
+    height: 22px;
+    transition: all 0.2s ease;
+    filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(0deg);
+}
+
+.like-button:hover .heart-icon {
+    transform: scale(1.1);
+}
+
+.like-button.liked .heart-icon {
+    filter: brightness(0) saturate(100%) invert(36%) sepia(93%) saturate(7440%) hue-rotate(351deg) brightness(91%) contrast(101%);
+}
+
+.like-button .likes-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--page-text-color);
+}
+
+/* Creator and Follow Button in Detail */
+.detailcard-creator {
+    padding: var(--generic-margin);
+    padding-top: calc(var(--generic-margin) * 2);
+}
+
+.creator-info-detail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.creator-name-detail {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--page-contrast-color);
+}
+
+.follow-btn-detail {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--page-secondary-background-color);
+    color: var(--page-contrast-color);
+}
+
+.follow-btn-detail:hover {
+    background-color: var(--page-lining-color);
+}
+
+.follow-btn-detail.following {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.follow-btn-detail.following:hover {
+    background-color: #45a049;
+}

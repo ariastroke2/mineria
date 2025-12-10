@@ -74,3 +74,128 @@
     font-size: 1.2rem;
 }
 
+/* Profile Stats - Followers & Following */
+.profile-stats {
+    display: flex;
+    gap: calc(var(--generic-margin) * 3);
+    margin-top: calc(var(--generic-margin) * 2);
+}
+
+.profile-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: calc(var(--generic-margin)) calc(var(--generic-margin) * 2);
+    border-radius: var(--image-radius);
+    transition: background-color 0.2s ease;
+}
+
+.profile-stat:hover {
+    background-color: var(--page-lining-color);
+}
+
+.stat-count {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--page-contrast-color);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--page-lining-color);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--page-background-color);
+    border-radius: var(--image-radius);
+    width: 90%;
+    max-width: 400px;
+    max-height: 70vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(var(--generic-margin) * 2);
+    border-bottom: 1px solid var(--page-lining-color);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--page-contrast-color);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--page-contrast-color);
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--primary-color);
+}
+
+.modal-body {
+    padding: calc(var(--generic-margin) * 2);
+    overflow-y: auto;
+    flex: 1;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--generic-margin) * 1.5);
+    padding: calc(var(--generic-margin) * 1.5);
+    border-radius: var(--image-radius);
+    transition: background-color 0.2s ease;
+}
+
+.user-item:hover {
+    background-color: var(--page-secondary-background-color);
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--page-contrast-color);
+}
+
+.modal-empty {
+    text-align: center;
+    color: var(--page-lining-color);
+    padding: calc(var(--generic-margin) * 2);
+}
+

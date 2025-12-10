@@ -1,0 +1,21 @@
+# Pins del tablero "Home Decor"
+# Formato: { "titulo": "TITULO", "url_image": "LINK_DE_LA_IMAGEN" }
+
+pins = [
+    { "titulo": "Flowers in vases and bottles on a dresser", "url_image": "" },
+    { "titulo": "Bed with blue and white striped comforter", "url_image": "" },
+    { "titulo": "Wooden counter top with black cupboards", "url_image": "" },
+    { "titulo": "Balcony with hanging plants and wicker furniture", "url_image": "" },
+    { "titulo": "Bookshelf in the corner of a room", "url_image": "" },
+    { "titulo": "Home office with large windows", "url_image": "" },
+    { "titulo": "Blue and white plates stacked", "url_image": "" },
+    { "titulo": "Dog laying on top of a bed", "url_image": "" },
+    { "titulo": "Mirror and plants on the floor", "url_image": "" },
+    { "titulo": "Three potted plants", "url_image": "" },
+    { "titulo": "Shower with plants growing", "url_image": "" },
+    { "titulo": "Cat next to a potted plant", "url_image": "" },
+    { "titulo": "Houseplant in a white pot on coffee table", "url_image": "" },
+    { "titulo": "Potted plant hanging from a rope", "url_image": "" },
+    { "titulo": "Blue and white plates (2)", "url_image": "" },
+]
+

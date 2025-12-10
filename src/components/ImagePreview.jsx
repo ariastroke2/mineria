@@ -26,7 +26,6 @@ export default function ImagePreview({ data }) {
                 <div className="previewcard-actions">
                     <div className="toprightcorner paddedbox">
                         <button
-                            
                             onClick={(e) => {
                                 console.log("CLACK");
                                 e.stopPropagation();
