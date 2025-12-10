@@ -42,17 +42,14 @@ export default function TrendingView() {
             }}>
                 <h1 style={{
                     fontSize: '2rem',
-                    color: '#ff6b35',
+                    color: '#666',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '10px'
                 }}>
-                    🔥 Trending Topics
+                    Trending Pins
                 </h1>
-                <p style={{ color: '#666', fontSize: '0.9rem' }}>
-                    Los pines más populares
-                </p>
             </div>
 
             <div className="columns">
