@@ -653,5 +653,316 @@ app.post('/api/boards/:boardId/add-pin', async (req, res) => {
     }
 });
 
+
+
+// 🔍 BARRA DE BÚSQUEDA GENERAL
+// GET /api/search?q=texto&type=pins|users|boards|all
+app.get('/api/search', async (req, res) => {
+    const q = (req.query.q || '').trim();
+    const type = (req.query.type || 'all').toLowerCase();
+    if (!q) {
+        return res.status(400).json({ error: 'El parámetro q (texto a buscar) es requerido' });
+    }
+
+    const session = driver.session();
+    try {
+        const response = {};
+
+        // Buscar PINS
+        if (type === 'pins' || type === 'all') {
+            const pinsResult = await session.run(`
+                MATCH (p:Pin)
+                OPTIONAL MATCH (u:User)-[:CREATES]->(p)
+                OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
+                WHERE toLower(p.title) CONTAINS toLower($q)
+                   OR toLower(p.description) CONTAINS toLower($q)
+                   OR (t IS NOT NULL AND toLower(t.name) CONTAINS toLower($q))
+                WITH p, u, collect(DISTINCT t.name) AS tags
+                RETURN p, u.name AS creator, u.profile_picture AS creatorPic, tags
+                ORDER BY p.created_at DESC
+                LIMIT 30
+            `, { q });
+
+            response.pins = pinsResult.records.map(rec => {
+                const p = rec.get('p').properties;
+                return {
+                    id: p.id_pin,
+                    title: p.title,
+                    description: p.description,
+                    url_image: p.url_image,
+                    created_at: p.created_at,
+                    creator: rec.get('creator') || 'Anónimo',
+                    creatorPic: rec.get('creatorPic') || null,
+                    tags: rec.get('tags') || []
+                };
+            });
+        }
+
+        // Buscar USUARIOS
+        if (type === 'users' || type === 'all') {
+            const usersResult = await session.run(`
+                MATCH (u:User)
+                WHERE toLower(u.name) CONTAINS toLower($q)
+                   OR (u.username IS NOT NULL AND toLower(u.username) CONTAINS toLower($q))
+                RETURN u
+                LIMIT 30
+            `, { q });
+
+            response.users = usersResult.records.map(rec => {
+                const u = rec.get('u').properties;
+                return {
+                    id: u.id_user,
+                    name: u.name,
+                    username: u.username || null,
+                    profile_picture: u.profile_picture || null
+                };
+            });
+        }
+
+        // Buscar BOARDS
+        if (type === 'boards' || type === 'all') {
+            const boardsResult = await session.run(`
+                MATCH (b:Board)
+                WHERE toLower(b.title) CONTAINS toLower($q)
+                   OR toLower(b.description) CONTAINS toLower($q)
+                RETURN b
+                ORDER BY b.created_at DESC
+                LIMIT 30
+            `, { q });
+
+            response.boards = boardsResult.records.map(rec => {
+                const b = rec.get('b').properties;
+                return {
+                    id: b.id_board,
+                    title: b.title,
+                    description: b.description,
+                    created_at: b.created_at
+                };
+            });
+        }
+
+        res.json(response);
+    } catch (e) {
+        console.error('Error en /api/search:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
+// 👥 USUARIOS SIMILARES (basado en likes en común)
+// GET /api/users/:id/similar
+app.get('/api/users/:id/similar', async (req, res) => {
+    const userId = req.params.id;
+    const session = driver.session();
+
+    try {
+        const result = await session.run(`
+            MATCH (me:User {id_user: $userId})-[:LIKES]->(p:Pin)<-[:LIKES]-(other:User)
+            WHERE other <> me
+            WITH me, other, count(DISTINCT p) AS commonLikes
+            // likes totales de me
+            MATCH (me)-[:LIKES]->(pMe:Pin)
+            WITH me, other, commonLikes, count(DISTINCT pMe) AS myLikes
+            // likes totales del otro
+            MATCH (other)-[:LIKES]->(pOther:Pin)
+            WITH other, commonLikes, myLikes, count(DISTINCT pOther) AS otherLikes
+            WITH other, commonLikes, myLikes, otherLikes,
+                 (1.0 * commonLikes) / (myLikes + otherLikes - commonLikes) AS jaccard
+            RETURN other, commonLikes, jaccard
+            ORDER BY jaccard DESC, commonLikes DESC
+            LIMIT 10
+        `, { userId });
+
+        const similarUsers = result.records.map(rec => {
+            const u = rec.get('other').properties;
+            return {
+                id: u.id_user,
+                name: u.name,
+                profile_picture: u.profile_picture || null,
+                commonLikes: rec.get('commonLikes'),
+                similarity: rec.get('jaccard')
+            };
+        });
+
+        res.json(similarUsers);
+    } catch (e) {
+        console.error('Error en /api/users/:id/similar:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
+// 🔥 PINS EN TENDENCIA (por número de likes en los últimos 7 días)
+// GET /api/trending/pins
+app.get('/api/trending/pins', async (req, res) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (p:Pin)
+            OPTIONAL MATCH (:User)-[l:LIKES]->(p)
+            WHERE l.date >= datetime() - duration('P7D') OR l IS NULL
+            WITH p, count(l) AS likesLast7d
+            RETURN p, likesLast7d
+            ORDER BY likesLast7d DESC, p.created_at DESC
+            LIMIT 20
+        `);
+
+        const pins = result.records.map(rec => {
+            const p = rec.get('p').properties;
+            return {
+                id: p.id_pin,
+                title: p.title,
+                description: p.description,
+                url_image: p.url_image,
+                created_at: p.created_at,
+                likesLast7d: rec.get('likesLast7d')
+            };
+        });
+
+        res.json(pins);
+    } catch (e) {
+        console.error('Error en /api/trending/pins:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
+// 🔥 TAGS EN TENDENCIA (tags más likeados en últimos 7 días)
+// GET /api/trending/tags
+app.get('/api/trending/tags', async (req, res) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (:User)-[l:LIKES]->(p:Pin)-[:HAS_TAG]->(t:Tag)
+            WHERE l.date >= datetime() - duration('P7D')
+            RETURN t.name AS tag, count(*) AS likesCount
+            ORDER BY likesCount DESC
+            LIMIT 20
+        `);
+
+        const tags = result.records.map(rec => ({
+            tag: rec.get('tag'),
+            likesCount: rec.get('likesCount')
+        }));
+
+        res.json(tags);
+    } catch (e) {
+        console.error('Error en /api/trending/tags:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
+// 📈 CENTRALIDAD (degree: followers + following)
+// GET /api/analytics/centrality/users
+app.get('/api/analytics/centrality/users', async (req, res) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (u:User)
+            OPTIONAL MATCH (u)<-[:FOLLOWS]-(f:User)
+            WITH u, count(f) AS followers
+            OPTIONAL MATCH (u)-[:FOLLOWS]->(fo:User)
+            WITH u, followers, count(fo) AS following
+            RETURN u, followers, following, (followers + following) AS degree
+            ORDER BY degree DESC
+            LIMIT 50
+        `);
+
+        const users = result.records.map(rec => {
+            const u = rec.get('u').properties;
+            return {
+                id: u.id_user,
+                name: u.name,
+                profile_picture: u.profile_picture || null,
+                followers: rec.get('followers'),
+                following: rec.get('following'),
+                degreeCentrality: rec.get('degree')
+            };
+        });
+
+        res.json(users);
+    } catch (e) {
+        console.error('Error en /api/analytics/centrality/users:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
+// 🧩 COMUNIDADES POR TAGS (usuarios agrupados por intereses)
+// GET /api/analytics/communities/tags
+app.get('/api/analytics/communities/tags', async (req, res) => {
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (u:User)-[:LIKES]->(p:Pin)-[:HAS_TAG]->(t:Tag)
+            WITH t, collect(DISTINCT u) AS users
+            RETURN t.name AS tag,
+                   [u IN users | { 
+                        id: u.id_user, 
+                        name: u.name, 
+                        profile_picture: u.profile_picture 
+                   }] AS members,
+                   size(users) AS size
+            ORDER BY size DESC
+            LIMIT 10
+        `);
+
+        const communities = result.records.map(rec => ({
+            tag: rec.get('tag'),
+            size: rec.get('size'),
+            members: rec.get('members')
+        }));
+
+        res.json(communities);
+    } catch (e) {
+        console.error('Error en /api/analytics/communities/tags:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
+// PINS SIMILARES (por tags compartidos)
+// GET /api/pins/:id/similar
+app.get('/api/pins/:id/similar', async (req, res) => {
+    const pinId = req.params.id;
+    const session = driver.session();
+    try {
+        const result = await session.run(`
+            MATCH (p:Pin {id_pin: $pinId})-[:HAS_TAG]->(t:Tag)<-[:HAS_TAG]-(other:Pin)
+            WHERE other <> p
+            WITH other, count(DISTINCT t) AS commonTags
+            RETURN other, commonTags
+            ORDER BY commonTags DESC, other.created_at DESC
+            LIMIT 10
+        `, { pinId });
+
+        const pins = result.records.map(rec => {
+            const p = rec.get('other').properties;
+            return {
+                id: p.id_pin,
+                title: p.title,
+                description: p.description,
+                url_image: p.url_image,
+                created_at: p.created_at,
+                commonTags: rec.get('commonTags')
+            };
+        });
+
+        res.json(pins);
+    } catch (e) {
+        console.error('Error en /api/pins/:id/similar:', e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        await session.close();
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Backend corriendo en puerto ${PORT}`));
