@@ -8,6 +8,7 @@ import IconCreate from "../resources/images/create-icon.svg"
 import IconDebug from "../resources/images/debug-icon.svg"
 import IconProfile from "../resources/images/profile-icon.svg"
 import IconBoard from "../resources/images/board-icon.svg"
+import IconFire from "../resources/images/fire-icon.svg"
 
 import ImgNavigationButton from '../components/ImgNavigationButton';
 
@@ -23,6 +24,9 @@ export default function Homebar(){
                 <div className='spacer'/>
                 <Link to="/">
                     <ImgNavigationButton icon={IconHome} target={"/"}/>
+                </Link>
+                <Link to="/trending">
+                    <ImgNavigationButton icon={IconFire} target={"/trending"}/>
                 </Link>
                 <Link to="/create">
                     <ImgNavigationButton icon={IconCreate} target={"/create"}/>
