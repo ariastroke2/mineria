@@ -59,6 +59,7 @@ app.get('/api/pins', async (req, res) => {
             RETURN p, u.name AS creator, u.id_user AS creatorId, u.profile_picture AS creatorPic, 
                    likesCount, likedByMe, isFollowing, p.created_at AS createdAt
             ORDER BY p.created_at DESC
+            LIMIT 150
         `, { userId });
         
         const pins = result.records.map(record => ({
@@ -802,21 +803,25 @@ app.get('/api/search', async (req, res) => {
         if (type === 'pins' || type === 'all') {
             const pinsResult = await session.run(`
                 MATCH (p:Pin)
-                OPTIONAL MATCH (u:User)-[:CREATES]->(p)
                 OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
-                WHERE toLower(p.title) CONTAINS toLower($q)
-                   OR toLower(p.description) CONTAINS toLower($q)
-                   OR (t IS NOT NULL AND toLower(t.name) CONTAINS toLower($q))
-                WITH p, u, collect(DISTINCT t.name) AS tags
+                WITH p, collect(DISTINCT t.name) AS tags
+                OPTIONAL MATCH (u:User)-[:CREATES]->(p)
+                WITH p, u, tags
+                WHERE
+                    (p.title IS NOT NULL AND toLower(p.title) CONTAINS toLower($q))
+                    OR
+                    (p.description IS NOT NULL AND toLower(p.description) CONTAINS toLower($q))
+                    OR
+                    any(tag IN tags WHERE tag IS NOT NULL AND toLower(tag) CONTAINS toLower($q))
                 RETURN p, u.name AS creator, u.profile_picture AS creatorPic, tags
                 ORDER BY p.created_at DESC
-                LIMIT 30
+                LIMIT 30;
             `, { q });
 
             response.pins = pinsResult.records.map(rec => {
                 const p = rec.get('p').properties;
                 return {
-                    id: p.id_pin,
+                    id_pin: p.id_pin,
                     title: p.title,
                     description: p.description,
                     url_image: p.url_image,

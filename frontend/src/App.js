@@ -16,6 +16,7 @@ import CreationPopup from './views/createPopup';
 import CreateBoard from './views/createBoardView.jsx';
 import TitleBar from './components/TitleBar.jsx';
 import UserSelector from './components/UserSelector.jsx';
+import SearchPinsView from './views/searchView.jsx';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/createboard" element={<CreateBoard />} />
                 <Route path="/boards/:id" element={<BoardView />} />
                 <Route path="/profile" element={<ProfileView />} />
+                <Route path="/search/:searchValue" element={<SearchPinsView />} />
             </Routes>
             </div>
         </BrowserRouter>
