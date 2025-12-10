@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 import Logo from "../resources/images/logo.png";
 
@@ -16,6 +17,14 @@ import "../styles/homebar.css";
 import { GetUserID } from '../connect/auth';
 
 export default function Homebar(){
+    const [userId, setUserId] = useState(GetUserID());
+    
+    useEffect(() => {
+        setUserId(GetUserID());
+    }, []);
+
+    const boardsPath = `/${userId}/boards`;
+
     return (
         <nav className="homebar">
                 <Link to="/"> 
@@ -31,8 +40,8 @@ export default function Homebar(){
                 <Link to="/create">
                     <ImgNavigationButton icon={IconCreate} target={"/create"}/>
                 </Link>
-                <Link to={`/${GetUserID()}/boards`}>
-                    <ImgNavigationButton icon={IconBoard} target={`/${GetUserID()}/boards`}/>
+                <Link to={boardsPath}>
+                    <ImgNavigationButton icon={IconBoard} target={boardsPath}/>
                 </Link>
                 <Link to="/debug">
                     <ImgNavigationButton icon={IconDebug} target={"/debug"}/>

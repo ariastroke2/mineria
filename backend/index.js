@@ -48,21 +48,16 @@ app.get('/api/pins', async (req, res) => {
         const result = await session.run(`
             MATCH (p:Pin)
             OPTIONAL MATCH (u:User)-[:CREATES]->(p)
-            OPTIONAL MATCH (b:Board)-[:CONTAINS]->(p)
             OPTIONAL MATCH (:User)-[l:LIKES]->(p)
             OPTIONAL MATCH (me:User {id_user: $userId})-[myLike:LIKES]->(p)
             OPTIONAL MATCH (me)-[followRel:FOLLOWS]->(u)
-            OPTIONAL MATCH (c:Comment)-[:ON]->(p)<-[:WROTE]-(author:User)
             
-            WITH p, u, b, count(DISTINCT l) AS likesCount, myLike, followRel, c, author
-            ORDER BY c.created_at DESC
-            
-            WITH p, u, b, likesCount, myLike, followRel,
-                 collect({id: c.id_comment, text: c.body, author: author.name, date: c.created_at}) AS comments
+            WITH DISTINCT p, u, count(DISTINCT l) AS likesCount, 
+                 (myLike IS NOT NULL) AS likedByMe, 
+                 (followRel IS NOT NULL) AS isFollowing
             
             RETURN p, u.name AS creator, u.id_user AS creatorId, u.profile_picture AS creatorPic, 
-                   b.title AS board, likesCount, (myLike IS NOT NULL) AS likedByMe, 
-                   (followRel IS NOT NULL) AS isFollowing, comments, p.created_at AS createdAt
+                   likesCount, likedByMe, isFollowing, p.created_at AS createdAt
             ORDER BY p.created_at DESC
         `, { userId });
         
@@ -71,15 +66,14 @@ app.get('/api/pins', async (req, res) => {
             creator: record.get('creator') || "Anónimo",
             creatorId: record.get('creatorId'),
             creatorPic: record.get('creatorPic'),
-            board: record.get('board'),
-            likesCount: record.get('likesCount').low || record.get('likesCount'),
+            likesCount: record.get('likesCount')?.low || record.get('likesCount') || 0,
             likedByMe: record.get('likedByMe'),
             isFollowing: record.get('isFollowing'),
-            comments: record.get('comments').slice(0, 10), 
             createdAt: record.get('createdAt')
         }));
         res.json(pins);
     } catch (error) {
+        console.error("Error en GET /api/pins:", error);
         res.status(500).json({ error: error.message });
     } finally { await session.close(); }
 });

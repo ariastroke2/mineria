@@ -9,37 +9,51 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import BlaxLoad from "../components/BlaxThink";
+import { GetUserID } from "../connect/auth";
 
 const target_url = "http://localhost:3000/boards/"
 
 export default function BoardSummaryView() {
     const { user } = useParams();
+    const navigate = useNavigate();
+    const currentUserId = GetUserID();
 
     const [boards, setBoards] = useState([]);
+    const [userName, setUserName] = useState("");
     const [loaded, setLoaded] = useState(false);
+
+    // Redirigir si el user de la URL no coincide con el usuario actual
+    useEffect(() => {
+        if (user !== currentUserId) {
+            navigate(`/${currentUserId}/boards`, { replace: true });
+        }
+    }, [user, currentUserId, navigate]);
 
     useEffect(() => {
         setLoaded(false);
         GetData();
-    }, [user]);
+    }, [currentUserId]);
 
     async function GetData() {
         try {
-            const data = await GET_Request({
-                url: `http://localhost:3001/api/${user}/boards`,
+            // Obtener boards del usuario actual
+            const boardsData = await GET_Request({
+                url: `http://localhost:3001/api/${currentUserId}/boards`,
             });
+            setBoards(boardsData);
 
-            console.log(data);
-
-            setBoards(data);
+            // Obtener nombre del usuario
+            const userData = await GET_Request({
+                url: `http://localhost:3001/api/user/${currentUserId}`,
+            });
+            setUserName(userData?.name || currentUserId);
 
             setLoaded(true);
         } catch (error) {
             console.log(error);
+            setUserName(currentUserId);
         }
     }
-
-    const navigate = useNavigate();
 
     function BoardDetailClick(value){
         navigate(target_url + value);
@@ -56,8 +70,7 @@ export default function BoardSummaryView() {
                 </div>
 
                 <div className="aligncenter">
-                    <img className="floatingimgbuttoncontainer" src={null} />
-                    <h1>Tableros de {" data"}</h1>
+                    <h1>Tableros de {userName}</h1>
                 </div>
             </div>
 
