@@ -119,28 +119,42 @@ app.get('/api/pin/:id', async (req, res) => {
     const pinId = req.params.id;
     const userId = req.query.userId || "USER-001";
     const session = driver.session();
+
     try {
-        const mainResult = await session.run(`
+        // --- 1. DATOS PRINCIPALES DEL PIN ---
+        const mainQuery = `
             MATCH (p:Pin {id_pin: $pinId})
             OPTIONAL MATCH (u:User)-[:CREATES]->(p)
             OPTIONAL MATCH (b:Board)-[:CONTAINS]->(p)
             OPTIONAL MATCH (:User)-[l:LIKES]->(p)
             OPTIONAL MATCH (me:User {id_user: $userId})-[myLike:LIKES]->(p)
             OPTIONAL MATCH (me)-[followRel:FOLLOWS]->(u)
-            OPTIONAL MATCH (c:Comment)-[:ON]->(p)
-            OPTIONAL MATCH (author:User)-[:WROTE]->(c)
-
+            
+            // Comentarios
+            OPTIONAL MATCH (author:User)-[:WROTE]->(c:Comment)-[:ON]->(p)
             
             WITH p, u, b, count(DISTINCT l) AS likesCount, myLike, followRel, c, author
             ORDER BY c.created_at DESC
             
             WITH p, u, b, likesCount, myLike, followRel,
-                 collect({id: c.id_comment, text: c.body, author: author.name, authorPic: author.profile_picture, date: c.created_at}) AS comments
+                 collect(CASE WHEN c IS NOT NULL THEN {
+                    id: c.id_comment, 
+                    text: c.body, 
+                    author: author.name, 
+                    authorPic: author.profile_picture, 
+                    date: c.created_at
+                 } ELSE null END) AS comments
             
-            RETURN p, u.name AS creator, u.id_user AS creatorId, u.profile_picture AS creatorPic,
-                   b.title AS board, b.id_board AS boardId, likesCount, 
-                   (myLike IS NOT NULL) AS likedByMe, (followRel IS NOT NULL) AS isFollowing, comments
-        `, { pinId, userId });
+            RETURN p, 
+                   u.name AS creator, u.id_user AS creatorId, u.profile_picture AS creatorPic,
+                   b.title AS board, b.id_board AS boardId, 
+                   likesCount, 
+                   (myLike IS NOT NULL) AS likedByMe, 
+                   (followRel IS NOT NULL) AS isFollowing, 
+                   comments
+        `;
+
+        const mainResult = await session.run(mainQuery, { pinId, userId });
 
         if (mainResult.records.length === 0) {
             return res.status(404).json({ error: "Pin no encontrado" });
@@ -152,33 +166,71 @@ app.get('/api/pin/:id', async (req, res) => {
             creator: record.get('creator') || "Anónimo",
             creatorId: record.get('creatorId'),
             creatorPic: record.get('creatorPic'),
-            board: record.get('board'),
+            board: record.get('board'),   // Importante para la navegación
             boardId: record.get('boardId'),
             likesCount: record.get('likesCount')?.low || record.get('likesCount') || 0,
             likedByMe: record.get('likedByMe'),
-            isFollowing: record.get('isFollowing'),
-            comments: record.get('comments').filter(c => c.id !== null)
+            isFollowing: record.get('isFollowing'), // Importante para el botón "Seguir"
+            comments: record.get('comments').filter(c => c !== null)
         };
 
-        const suggestedResult = await session.run(`
-            MATCH (other:Pin)
-            WHERE other.id_pin <> $pinId
-            OPTIONAL MATCH (u:User)-[:CREATES]->(other)
-            RETURN other, u.name AS creator
-            ORDER BY other.created_at DESC
-            LIMIT 15
-        `, { pinId });
+        // --- 2. SUGERENCIAS COMPLEJAS (Board + Creador + Tags) ---
+        // Prioridad: 
+        // 1. Pines del mismo Board (Contexto inmediato)
+        // 2. Pines con los mismos Tags (Interés similar)
+        // 3. Pines del mismo Creador (Estilo similar)
+        const suggestedQuery = `
+            MATCH (main:Pin {id_pin: $pinId})
+            
+            // A. Mismo Board
+            OPTIONAL MATCH (main)<-[:CONTAINS]-(b:Board)-[:CONTAINS]->(pBoard:Pin)
+            WHERE pBoard <> main
+            
+            // B. Mismos Tags (Si tienes tags implementados)
+            OPTIONAL MATCH (main)-[:HAS_TAG]->(t:Tag)<-[:HAS_TAG]-(pTag:Pin)
+            WHERE pTag <> main
+            
+            // C. Mismo Creador
+            OPTIONAL MATCH (main)<-[:CREATES]-(u:User)-[:CREATES]->(pUser:Pin)
+            WHERE pUser <> main
+
+            // Recolectar todo y unificar
+            WITH collect(DISTINCT pBoard) AS boardPins,
+                 collect(DISTINCT pTag) AS tagPins,
+                 collect(DISTINCT pUser) AS userPins
+            
+            // Unimos las listas dando prioridad implícita por orden, aunque aquí mezclamos todo
+            WITH boardPins + tagPins + userPins AS allSuggestions
+            UNWIND allSuggestions AS p
+            
+            // Eliminamos duplicados finales y traemos datos básicos
+            WITH DISTINCT p
+            OPTIONAL MATCH (creator:User)-[:CREATES]->(p)
+            
+            RETURN p.id_pin AS id, 
+                   p.title AS title, 
+                   p.url_image AS url_image, 
+                   creator.name AS creator
+            LIMIT 20
+        `;
+
+        const suggestedResult = await session.run(suggestedQuery, { pinId });
 
         const suggestedSimilarPins = suggestedResult.records.map(rec => ({
-            ...rec.get('other').properties,
+            id_pin: rec.get('id'),
+            title: rec.get('title'),
+            url_image: rec.get('url_image'),
             creator: rec.get('creator') || "Anónimo"
         }));
 
         res.json({ mainPin, suggestedSimilarPins });
+
     } catch (error) {
         console.error("Error en GET /api/pin/:id:", error);
         res.status(500).json({ error: error.message });
-    } finally { await session.close(); }
+    } finally { 
+        await session.close(); 
+    }
 });
 
 // LIKE PIN (toggle like/unlike)
@@ -585,210 +637,7 @@ app.get('/api/user/:id/liked-pins', async (req, res) => {
     } finally { await session.close(); }
 });
 
-app.get('/api/pin/:id_pin', async (req, res) => {
-    // 1. Obtener parámetros
-    const { id_pin } = req.params; // ID del Pin a buscar
-    const userId = req.query.userId || "USER-001"; // ID del usuario actual (para saber si le dio Like)
-    const session = driver.session();
-    
-    try {
-        // 2. Consulta Cypher para obtener el Pin principal y sus detalles
-        const pinQuery = await session.run(`
-            // Encuentra el Pin principal por su ID
-            MATCH (p:Pin {id_pin: $id_pin})
-                    
-            // Creador del pin
-            OPTIONAL MATCH (u:User)-[:CREATES]->(p)
-                    
-            // Likes y like del usuario actual
-            OPTIONAL MATCH (:User)-[l:LIKES]->(p)
-            OPTIONAL MATCH (me:User {id_user: $userId})-[myLike:LIKES]->(p)
-                    
-            // Comentarios y sus autores
-            OPTIONAL MATCH (author:User)-[:WROTE]->(c:Comment)-[:ON]->(p)
-                    
-            WITH p, u, count(l) AS likesCount, myLike, c, author
-            ORDER BY c.created_at DESC
-                    
-            WITH p, u, likesCount, myLike,
-                 collect(
-                 CASE
-           WHEN c IS NULL THEN null
-                       ELSE {
-                            id: c.id_comment,
-                            text: c.body,
-                            author: author.name,
-                            authorPic: author.profile_picture,
-                            date: c.created_at
-                       }
-                    END
-                 ) AS comments_list
-                    
-            RETURN p,
-                   u.name AS creator,
-                   u.profile_picture AS creatorPic,
-                   likesCount,
-                   (myLike IS NOT NULL) AS likedByMe,
-                   comments_list,
-                   p.created_at AS createdAt
-        `, { id_pin, userId });
 
-        // 3. Procesar el Pin principal
-        if (pinQuery.records.length === 0) {
-            return res.status(404).json({ error: "Pin no encontrado." });
-        }
-
-        const mainPinRecord = pinQuery.records[0];
-        const mainPinData = {
-            ...mainPinRecord.get('p').properties,
-            creator: mainPinRecord.get('creator') || "Anónimo",
-            creatorPic: mainPinRecord.get('creatorPic'),
-            likesCount: mainPinRecord.get('likesCount').low || mainPinRecord.get('likesCount'),
-            likedByMe: mainPinRecord.get('likedByMe'),
-            // Solo incluimos los 10 primeros comentarios (si es necesario limitar)
-            comments: mainPinRecord.get('comments_list'), 
-            createdAt: mainPinRecord.get('createdAt')
-        };
-        
-        // 4. Consulta para Pins Sugeridos (Similaridad por Board, Tags, o Creador)
-        // Esta es una consulta de ejemplo; puedes ajustarla para mayor relevancia.
-        const suggestedQuery = await session.run(`
-            MATCH (main:Pin {id_pin: $id_pin})
-
-            // Pins del mismo board
-            OPTIONAL MATCH (b:Board)-[:CONTAINS]->(main)
-            OPTIONAL MATCH (b)-[:CONTAINS]->(p_board:Pin)
-            WHERE p_board <> main
-
-            // Pins del mismo creador
-            OPTIONAL MATCH (u:User)-[:CREATES]->(main)
-            OPTIONAL MATCH (u)-[:CREATES]->(p_creator:Pin)
-            WHERE p_creator <> main
-
-            WITH collect(DISTINCT p_board) AS boardPins,
-                 collect(DISTINCT p_creator) AS creatorPins
-
-            WITH boardPins + creatorPins AS suggestedPins
-            UNWIND suggestedPins AS p
-
-            WITH DISTINCT p
-            LIMIT 50
-
-            RETURN p.id_pin AS id_pin,
-                   p.title AS title,
-                   p.url_image AS url_image
-        `, { id_pin });
-        
-        // 5. Procesar los Pins sugeridos
-        const suggestedSimilarPins = suggestedQuery.records.map(record => ({
-            id_pin: record.get('id_pin'),
-            title: record.get('title'),
-            url_image: record.get('url_image')
-        }));
-
-        // 6. Enviar la respuesta final en el formato solicitado
-        res.json({
-            mainPin: mainPinData,
-            suggestedSimilarPins: suggestedSimilarPins
-        });
-
-    } catch (error) {
-        console.error("Error al obtener el Pin:", error);
-        res.status(500).json({ error: "Error interno del servidor al obtener el Pin." });
-    } finally { 
-        await session.close(); 
-    }
-});
-
-app.get('/api/:user/boards', async (req, res) => {
-    const session = driver.session();
-    const userId = req.params.user;
-
-    try {
-        const r = await session.run(`MATCH (u:User {id_user: $userId})-[:CREATES]->(b:Board)
-            OPTIONAL MATCH (b)-[:CONTAINS]->(p:Pin)
-            WITH b, p
-            ORDER BY p.created_at DESC
-            WITH b, collect(p.url_image)[0..3] AS imgs
-            RETURN b.id_board AS id,
-                   b.title AS title,
-                   imgs AS images`,
-            { userId });
-        res.json(r.records.map(rec => ({id: rec.get("id"),
-                title: rec.get("title"),
-                images: rec.get("images")})));
-    } catch (e) { res.status(500).json(e); } finally { await session.close(); }
-});
-
-// GET PINS DE UN BOARD (Javi lo hizo con ia)
-app.get('/api/boards/:boardId', async (req, res) => {
-    const session = driver.session();
-    const boardId = req.params.boardId;
-
-    try {
-        const r = await session.run(
-            `
-            MATCH (b:Board {id_board: $boardId})
-            OPTIONAL MATCH (b)-[:CONTAINS]->(p:Pin)
-            RETURN b.title AS title,
-                   b.description AS description,
-                   collect({
-                       id_pin: p.id_pin,
-                       title: p.title,
-                       url_image: p.url_image
-                   }) AS pins
-            `,
-            { boardId }
-        );
-
-        if (r.records.length === 0) {
-            return res.status(404).json({ error: "Board no encontrado" });
-        }
-
-        const record = r.records[0];
-        res.json({
-            title: record.get("title"),
-            description: record.get("description"),
-            pins: record.get("pins")
-        });
-
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    } finally {
-        await session.close();
-    }
-});
-
-app.post('/api/boards/:boardId/add-pin', async (req, res) => {
-    const session = driver.session();
-    const { pinId } = req.body;
-    const { boardId } = req.params;
-
-    try {
-        const query = `
-            MATCH (b:Board {id_board: $boardId})
-            MATCH (p:Pin {id_pin: $pinId})
-            MERGE (b)-[:CONTAINS]->(p)
-            RETURN p.id_pin AS addedPin
-        `;
-
-        const result = await session.run(query, { boardId, pinId });
-
-        res.json({
-            success: true,
-            pin: result.records[0]?.get("addedPin")
-        });
-
-    } catch (err) {
-        res.status(500).json({ error: err });
-    } finally {
-        await session.close();
-    }
-});
-
-
-
-// 🔍 BARRA DE BÚSQUEDA GENERAL
 // GET /api/search?q=texto&type=pins|users|boards|all
 app.get('/api/search', async (req, res) => {
     const q = (req.query.q || '').trim();
@@ -887,7 +736,6 @@ app.get('/api/search', async (req, res) => {
     }
 });
 
-// 👥 USUARIOS SIMILARES (basado en likes en común)
 // GET /api/users/:id/similar
 app.get('/api/users/:id/similar', async (req, res) => {
     const userId = req.params.id;
@@ -931,7 +779,6 @@ app.get('/api/users/:id/similar', async (req, res) => {
     }
 });
 
-// 🔥 PINS EN TENDENCIA (por número de likes en los últimos 7 días)
 // GET /api/trending/pins
 app.get('/api/trending/pins', async (req, res) => {
     const session = driver.session();
@@ -967,7 +814,6 @@ app.get('/api/trending/pins', async (req, res) => {
     }
 });
 
-// 🔥 TAGS EN TENDENCIA (tags más likeados en últimos 7 días)
 // GET /api/trending/tags
 app.get('/api/trending/tags', async (req, res) => {
     const session = driver.session();
@@ -994,7 +840,6 @@ app.get('/api/trending/tags', async (req, res) => {
     }
 });
 
-// 📈 CENTRALIDAD (degree: followers + following)
 // GET /api/analytics/centrality/users
 app.get('/api/analytics/centrality/users', async (req, res) => {
     const session = driver.session();
@@ -1031,7 +876,6 @@ app.get('/api/analytics/centrality/users', async (req, res) => {
     }
 });
 
-// 🧩 COMUNIDADES POR TAGS (usuarios agrupados por intereses)
 // GET /api/analytics/communities/tags
 app.get('/api/analytics/communities/tags', async (req, res) => {
     const session = driver.session();
@@ -1065,7 +909,6 @@ app.get('/api/analytics/communities/tags', async (req, res) => {
     }
 });
 
-// PINS SIMILARES (por tags compartidos)
 // GET /api/pins/:id/similar
 app.get('/api/pins/:id/similar', async (req, res) => {
     const pinId = req.params.id;
