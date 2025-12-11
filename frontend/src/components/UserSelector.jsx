@@ -28,9 +28,10 @@ export default function UserSelector() {
             setUsers(data);
             
             // Encontrar usuario actual
-            const currentId = GetUserID();
+            /*const currentId = GetUserID();
             const current = data.find(u => u.id === currentId);
-            setCurrentUser(current || data[0]);
+            setCurrentUser(current || data[0]);*/
+            setCurrentUser(data[0]);
         } catch (error) {
             console.error('Error fetching users:', error);
         }
