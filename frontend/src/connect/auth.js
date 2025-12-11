@@ -1,4 +1,4 @@
-const DEFAULT_USER = "USER-001";
+const DEFAULT_USER = "USER-1";
 
 export function GetUserID() {
     return localStorage.getItem('currentUserId') || DEFAULT_USER;
