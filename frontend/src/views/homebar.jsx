@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-import Logo from "../resources/images/logo.png";
+import Logo from "../resources/images/Logo.svg";
 
 import IconHome from "../resources/images/home-icon.svg";
 import IconSettings from "../resources/images/settings-icon.svg";
